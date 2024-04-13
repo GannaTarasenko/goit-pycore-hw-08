@@ -92,13 +92,15 @@ class AddressBook(UserDict):
     def delete(self, name): 
         del self[name]
 
-    def find_next_weekday(d, weekday: int):  # Функція для знаходження наступного дня
+    def find_next_weekday(d, weekday: int):
+        """Функція для знаходження наступного дня народження"""
         days_ahead = weekday - d.weekday()
         if days_ahead <= 0:
             days_ahead += 7
         return d + timedelta(days=days_ahead)
 
     def get_upcoming_birthdays(self):
+        """Функція для знаходження наступного дня народження за виключенням суботи та неділі"""
         today = datetime.today().date()
         upcoming_birthdays = []
 
@@ -120,7 +122,8 @@ class AddressBook(UserDict):
 
         return upcoming_birthdays
 
-def input_error_phone(func):  # Декоратор для обробки помилок з телефонним номером
+def input_error_phone(func):
+    """Декоратор для обробки помилок з телефонним номером"""
     def inner(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -132,7 +135,8 @@ def input_error_phone(func):  # Декоратор для обробки пом�
             return "Будь ласка, введіть Ім'я"
     return inner
 
-def input_error_birthday(func):  # Декоратор для обробки помилок з датою народження
+def input_error_birthday(func):
+    """Декоратор для обробки помилок з датою народження"""
     def inner(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -141,25 +145,28 @@ def input_error_birthday(func):  # Декоратор для обробки по
     return inner
 
 def input_error_change_contact(func):
+    """Декоратор для обробки помилок за зміною телефонного номера"""
     def inner(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except ValueError:                                                                           # Обробка помилки ValueError
+        except ValueError:
             return "Неправильний формат введення! Будь ласка, введіть Ім'я, старий номер телефону та новий номер телефону."
-        except KeyError:                                                                             # Обробка помилки KeyError
+        except KeyError:
             return "Запис відсутній."
-        except IndexError:                                                                           # Обробка помилки IndexError
+        except IndexError:
             return "Будь ласка, введіть Ім'я, старий номер телефону та новий номер телефону."
     return inner
     
 @input_error_phone
-def parse_input(user_input):  # Функція для розбору команд та аргументів
+def parse_input(user_input):
+    """Функція для розбору команд та аргументів"""
     cmd, *args = user_input.split()
     cmd = cmd.strip().lower()
     return cmd, *args
 
 @input_error_phone
-def add_contact(args, book: AddressBook):  # Функція для додавання контакту у словник
+def add_contact(args, book: AddressBook):
+    """Функція для додавання контакту у словник"""
     name, phone, *_ = args
     record = book.find(name)
     message = "Контакт оновлено."
@@ -172,7 +179,8 @@ def add_contact(args, book: AddressBook):  # Функція для додава�
     return message
 
 @input_error_change_contact
-def change_contact(args, book: AddressBook):                         # Функція для зміни існуючого контакту
+def change_contact(args, book: AddressBook):
+    """Функція для зміни існуючого контакту"""
     name, old_phone, new_phone, *_ = args
     if len(new_phone) != 10:  # Перевірка на правильний формат нового номера телефону
         raise ValueError("Новий номер телефону має містити 10 цифр.")
@@ -189,7 +197,8 @@ def change_contact(args, book: AddressBook):                         # Функ�
     return message
 
 @input_error_phone       
-def show_phone(args, book: AddressBook):  # Функція для відображення існуючого контакту за ім'ям користувача
+def show_phone(args, book: AddressBook):
+    """Функція для відображення існуючого контакту за ім'ям користувача"""
     name, *_ = args
     record = book.find(name)
     if record:
@@ -198,7 +207,8 @@ def show_phone(args, book: AddressBook):  # Функція для відобра
         return "Контакт відсутній."
 
 @input_error_birthday
-def add_birthday(args, book: AddressBook):  # Функція для додавання дати народження для контакту 
+def add_birthday(args, book: AddressBook):
+    """Функція для додавання дати народження для контакту""" 
     name, birthday, *_ = args
     record = book.find(name)
     if record:
@@ -208,7 +218,8 @@ def add_birthday(args, book: AddressBook):  # Функція для додава
         return "Контакт відсутній."
     
 @input_error_phone
-def show_birthday(args, book: AddressBook):  # Функція для відображення дня народження контакту
+def show_birthday(args, book: AddressBook):
+    """Функція для відображення дня народження контакту"""
     name, *_ = args
     record = book.find(name)
     if record:
@@ -216,14 +227,17 @@ def show_birthday(args, book: AddressBook):  # Функція для відоб�
     else:
         return "Контакт відсутній"
     
-def birthdays(book: AddressBook):  # Функція для відображення майбутніх днів народження
+def birthdays(book: AddressBook):
+    """Функція для відображення майбутніх днів народження"""
     return book.get_upcoming_birthdays()
 
 def save_data(book, filename="addressbook.pkl"):
+    """Функція для серіалізації об'єкта book та запису його у файл"""
     with open(filename, "wb") as f:
         pickle.dump(book, f)
 
 def load_data(filename="addressbook.pkl"):
+    """Функція для десеріалізації об'єкта з файлу та повернення його значення"""
     try:
         with open(filename, "rb") as f:
             return pickle.load(f)
